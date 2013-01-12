@@ -3,7 +3,7 @@
 
 ### Demo
 
-Visit: http://jiyinyiyong.github.com/github-viewer/pages/ to see it.  
+Visit: http://jiyinyiyong.github.com/github-viewer/page/ to see it.  
 
 The division on top is the user profile. The right one is file list.  
 Mouse turning to hand means you can click here..  
@@ -17,6 +17,10 @@ I reached Github API's limit and I tried to use an application key.
 ### Goal
 
 Just a test if I can generate a static blog with file free lists..
+
+### Failed :(
+
+Failed at crossing domain request... It only runs as a client version.  
 
 ### Reference
 
