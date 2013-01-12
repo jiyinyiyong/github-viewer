@@ -1,0 +1,118 @@
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  width: 4px;
+  background: rgba(179,225,230,0);
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background: #c7c7d1;
+}
+::-webkit-scrollbar-corner {
+  background: rgba(163,163,245,0);
+}
+body {
+  margin: 0px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+* {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+code {
+  font-size: 14px;
+  font-family: Monaco, monospace;
+}
+input,
+textarea {
+  border: none;
+}
+#page {
+  box-shadow: 0px 0px 4px #ccc;
+  width: 800px;
+  margin: 200px auto;
+  min-height: 400px;
+  background: #f5f5f5;
+  padding: 20px;
+}
+#user {
+  box-shadow: 0px 0px 4px #ccc;
+  position: fixed;
+  background: #f7f7f7;
+  top: -200px;
+  left: 0px;
+  height: 300px;
+  width: 800px;
+  -webkit-transition-duration: 0.4s;
+  display: -webkit-flex;
+}
+#user:hover {
+  top: 0px;
+}
+#user .profile {
+  width: 30%;
+  padding: 40px;
+}
+#user .repos {
+  width: 70%;
+  height: 100%;
+  overflow-y: scroll;
+}
+#user .repos .repo {
+  line-height: 20px;
+  padding: 10px;
+  cursor: pointer;
+}
+#user .repos .repo:hover {
+  background: #dbdbf0;
+}
+#user .repos .repo p {
+  margin: 0px;
+}
+#user .repos .repo .description {
+  font-size: 14px;
+  color: #666;
+}
+#list {
+  box-shadow: 0px 0px 4px #ccc;
+  position: fixed;
+  background: #fafafa;
+  right: -300px;
+  width: 400px;
+  top: 0px;
+  height: 100%;
+  -webkit-transition-duration: 0.4s;
+  padding: 160px 0px 100px 20px;
+  font-size: 14px;
+  color: #666;
+  line-height: 24px;
+}
+#list:hover {
+  right: 0px;
+}
+#list .repo {
+  font-size: 20px;
+}
+#list .repo:after {
+  content: "/";
+}
+#list .title {
+  margin: 20px 0px;
+}
+#list .file {
+  color: #5c5cd6;
+}
+#list .dir {
+  color: #d65c5c;
+}
+#list .dir:after {
+  content: "/";
+}
+#list .file,
+#list .dir,
+#list .repo {
+  cursor: pointer;
+}

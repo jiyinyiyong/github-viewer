@@ -1,0 +1,115 @@
+
+::-webkit-scrollbar
+  width 4px
+  height 4px
+
+::-webkit-scrollbar-track
+  width 4px
+  background hsla(185,50,80,0)
+
+::-webkit-scrollbar-thumb
+  border-radius 2px
+  background hsl(240,10,80)
+
+::-webkit-scrollbar-corner
+  background hsla(240,80,80,0)
+
+body
+  margin 0px
+  overflow-x hidden
+  overflow-y scroll
+
+*
+  box-sizing border-box
+  -moz-box-sizing border-box
+
+code
+  font-size 14px
+  font-family Monaco, monospace
+
+input, textarea
+  border none
+
+#page
+  box-shadow 0px 0px 4px hsl(0,0,80)
+  width 800px
+  margin 200px auto
+  min-height 400px
+  background hsl(0,0,96)
+  padding 20px
+
+#user
+  box-shadow 0px 0px 4px hsl(0,0,80)
+  position fixed
+  background hsl(0,0,97)
+  top -200px
+  left 0px
+  height 300px
+  width 800px
+  -webkit-transition-duration 0.4s
+  display -webkit-flex
+
+  &:hover
+    top 0px
+
+  .profile
+    width 30%
+    padding 40px
+
+  .repos
+    width 70%
+    height 100%
+    overflow-y scroll
+
+    .repo
+      line-height 20px
+      padding 10px
+      cursor pointer
+
+      &:hover
+        background hsl(240,40,90)
+
+      p
+        margin 0px
+
+      .description
+        font-size 14px
+        color hsl(0,0,40)
+
+#list
+  box-shadow 0px 0px 4px hsl(0,0,80)
+  position fixed
+  background hsl(0,0,98)
+  right -300px
+  width 400px
+  top 0px
+  height 100%
+  -webkit-transition-duration 0.4s
+  padding 160px 0px 100px 20px
+  font-size 14px
+  color hsl(0,0,40)
+  line-height 24px
+
+  &:hover
+    right 0px
+
+  .repo
+    font-size 20px
+
+    &:after
+      content "/"
+
+  .title
+    margin 20px 0px
+
+  .file
+    color hsl(240,60,60)
+
+  .dir
+    color hsl(0,60,60)
+
+    &:after
+      content "/"
+
+  .file, .dir, .repo
+    cursor pointer
