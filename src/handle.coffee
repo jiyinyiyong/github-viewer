@@ -113,7 +113,7 @@ window.onload = ->
           get_raw file.url, (text) ->
             render_file text, file.path
 
-        repo = file.url.match(/repos\/\w+\/(\w+)\//)[1]
+        repo = file.url.match(/repos\/[\w\d-]+\/([\w\d-]+)\//)[1]
         state =
           user: user
           repo: repo
@@ -147,7 +147,7 @@ window.onload = ->
 
   if location.hash?
     string = location.hash[1..]
-    match = string.match(/^(\w+)\/(\w+)\/(\S+)$/)[1..]
+    match = string.match(/^([\w\d-]+)\/([\w\d-]+)\/(\S+)$/)[1..]
     pop =
       state:
         user: match[0]

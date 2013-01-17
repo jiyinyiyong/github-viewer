@@ -156,7 +156,7 @@ window.onload = function() {
             return render_file(text, file.path);
           });
         }
-        repo = file.url.match(/repos\/\w+\/(\w+)\//)[1];
+        repo = file.url.match(/repos\/[\w\d-]+\/([\w\d-]+)\//)[1];
         state = {
           user: user,
           repo: repo,
@@ -193,7 +193,7 @@ window.onload = function() {
   };
   if (location.hash != null) {
     string = location.hash.slice(1);
-    match = string.match(/^(\w+)\/(\w+)\/(\S+)$/).slice(1);
+    match = string.match(/^([\w\d-]+)\/([\w\d-]+)\/(\S+)$/).slice(1);
     pop = {
       state: {
         user: match[0],
