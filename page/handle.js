@@ -45,11 +45,9 @@ get = function(path, callback) {
   log("get:", path);
   if (path.indexOf("?") >= 0) {
     the_path = path + "&" + auth;
-    log("the_path", the_path);
     req.open("get", the_path);
   } else {
     the_path = path + "?" + auth;
-    log("the_path", the_path);
     req.open("get", the_path);
   }
   req.onload = function(res) {
@@ -63,7 +61,6 @@ get = function(path, callback) {
 get_raw = function(path, callback) {
   var req, the_path;
   req = new XMLHttpRequest;
-  log("get:", path);
   if (path.indexOf("?") >= 0) {
     the_path = path + "&" + auth;
     log("the_path", the_path);
@@ -83,7 +80,7 @@ get_raw = function(path, callback) {
 };
 
 window.onload = function() {
-  var el, render_file, render_list;
+  var el, get_repo, get_user, match, pop, render_file, render_list, string;
   el = {
     list: q("#list"),
     user: q("#user"),
@@ -92,45 +89,52 @@ window.onload = function() {
   marked.setOptions({
     breaks: true
   });
-  get("https://api.github.com/users/" + user, function(data) {
-    log(data);
-    return el.user.q(".profile").appendChild(lilyturf.dom(function() {
-      return this.div({}, this.img({
-        src: data.avatar_url
-      }), this.div({
-        "class": "username"
-      }, this.text(data.name)), this.div({
-        "class": "location"
-      }, this.text(data.location)));
-    }));
-  });
-  get("https://api.github.com/users/" + user + "/repos?type=owner&sort=updated", function(data) {
-    log(data);
-    return data.forEach(function(repo) {
-      var elem;
-      elem = lilyturf.dom(function() {
-        return this.div({
-          "class": "repo"
-        }, this.p({
-          "class": "repo-name"
-        }, this.text(repo.name)), this.p({
-          "class": "description"
-        }, this.text(repo.description)));
-      });
-      el.user.q(".repos").appendChild(elem);
-      return elem.onclick = function() {
-        var contents;
-        log(repo.contents_url);
-        el.list.q(".repo").innerText = repo.name;
-        el.list.q(".path").innerText = "";
-        contents = repo.contents_url.replace("{+path}", "");
-        get(contents, render_list);
-        return el.list.q(".repo").onclick = function() {
-          return get(contents, render_list);
-        };
-      };
+  get_user = function(username) {
+    return get("https://api.github.com/users/" + username, function(data) {
+      el.user.q(".profile").innerHTML = '';
+      return el.user.q(".profile").appendChild(lilyturf.dom(function() {
+        return this.div({}, this.img({
+          src: data.avatar_url
+        }), this.div({
+          "class": "username"
+        }, this.text(data.name)), this.div({
+          "class": "location"
+        }, this.text(data.location)));
+      }));
     });
-  });
+  };
+  get_user(user);
+  get_repo = function(username) {
+    var repo_url;
+    repo_url = "https://api.github.com/users/" + username + "/repos";
+    repo_url += "?type=owner&sort=updated";
+    return get(repo_url, function(data) {
+      return data.forEach(function(repo) {
+        var elem;
+        elem = lilyturf.dom(function() {
+          return this.div({
+            "class": "repo"
+          }, this.p({
+            "class": "repo-name"
+          }, this.text(repo.name)), this.p({
+            "class": "description"
+          }, this.text(repo.description)));
+        });
+        el.user.q(".repos").appendChild(elem);
+        return elem.onclick = function() {
+          var contents;
+          el.list.q(".repo").innerText = repo.name;
+          el.list.q(".path").innerText = "";
+          contents = repo.contents_url.replace("{+path}", "");
+          get(contents, render_list);
+          return el.list.q(".repo").onclick = function() {
+            return get(contents, render_list);
+          };
+        };
+      });
+    });
+  };
+  get_repo(user);
   render_list = function(list) {
     el.list.q(".list").innerHTML = "";
     return list.forEach(function(file) {
@@ -142,19 +146,27 @@ window.onload = function() {
       });
       el.list.q(".list").appendChild(elem);
       return elem.onclick = function() {
+        var repo, state;
         log("click:", file);
         el.list.q(".path").innerText = file.path;
         if (file.type === "dir") {
-          return get(file.url, render_list);
+          get(file.url, render_list);
         } else {
-          return get_raw(file.url, function(text) {
+          get_raw(file.url, function(text) {
             return render_file(text, file.path);
           });
         }
+        repo = file.url.match(/repos\/\w+\/(\w+)\//)[1];
+        state = {
+          user: user,
+          repo: repo,
+          path: file.path
+        };
+        return history.pushState(state, file.path, "#" + user + "/" + repo + "/" + file.path);
       };
     });
   };
-  return render_file = function(text, path) {
+  render_file = function(text, path) {
     page.innerHTML = "";
     if (path.match(/\w+\.(md)$/)) {
       return page.innerHTML = marked(text);
@@ -166,4 +178,30 @@ window.onload = function() {
       }));
     }
   };
+  window.onpopstate = function(pop) {
+    var start, state;
+    log('onpopstate', pop.state);
+    state = pop.state;
+    if (state != null) {
+      get_user(state.user);
+      start = root(state.user, state.repo);
+      get(start, render_list);
+      return get_raw(start + state.path, function(text) {
+        return render_file(text, state.path);
+      });
+    }
+  };
+  if (location.hash != null) {
+    string = location.hash.slice(1);
+    match = string.match(/^(\w+)\/(\w+)\/(\S+)$/).slice(1);
+    pop = {
+      state: {
+        user: match[0],
+        repo: match[1],
+        path: match[2]
+      }
+    };
+    log(match, pop);
+    return onpopstate(pop);
+  }
 };

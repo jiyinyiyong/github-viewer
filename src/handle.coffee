@@ -22,11 +22,11 @@ get = (path, callback) ->
   log "get:", path
   if path.indexOf("?") >= 0
     the_path = path + "&" + auth
-    log "the_path", the_path
+    # log "the_path", the_path
     req.open "get", the_path
   else
     the_path = path + "?" + auth
-    log "the_path", the_path
+    # log "the_path", the_path
     req.open "get", the_path
   req.onload = (res) ->
     text = res.target.response
@@ -35,7 +35,7 @@ get = (path, callback) ->
 
 get_raw = (path, callback) ->
   req = new XMLHttpRequest
-  log "get:", path
+  # log "get:", path
   if path.indexOf("?") >= 0
     the_path = path + "&" + auth
     log "the_path", the_path
@@ -59,33 +59,43 @@ window.onload = ->
   marked.setOptions
     breaks: yes
 
-  get "https://api.github.com/users/#{user}", (data) ->
-    log data
-    el.user.q(".profile").appendChild lilyturf.dom ->
-      @div {},
-        @img src: data.avatar_url
-        @div class: "username", (@text data.name)
-        @div class: "location", (@text data.location)
 
-  # get "https://api.github.com/users/#{user}/repos", (data) ->
-  get "https://api.github.com/users/#{user}/repos?type=owner&sort=updated", (data) ->
-    log data
-    data.forEach (repo) ->
-      elem = lilyturf.dom ->
-        @div class: "repo",
-          @p class: "repo-name", (@text repo.name)
-          @p class: "description", (@text repo.description)
-      el.user.q(".repos").appendChild elem
+  get_user = (username) ->
+    get "https://api.github.com/users/#{username}", (data) ->
+      # log data
+      el.user.q(".profile").innerHTML = ''
+      el.user.q(".profile").appendChild lilyturf.dom ->
+        @div {},
+          @img src: data.avatar_url
+          @div class: "username", (@text data.name)
+          @div class: "location", (@text data.location)
 
-      elem.onclick = ->
-        log repo.contents_url
-        el.list.q(".repo").innerText = repo.name
-        el.list.q(".path").innerText = ""
-        contents = repo.contents_url.replace("{+path}", "")
+  get_user user
 
-        get contents, render_list
-        el.list.q(".repo").onclick = ->
+  get_repo = (username) ->
+    # repo_url "https://api.github.com/users/#{username}/repos"
+    repo_url = "https://api.github.com/users/#{username}/repos"
+    repo_url+= "?type=owner&sort=updated"
+    get repo_url, (data) ->
+      # log data
+      data.forEach (repo) ->
+        elem = lilyturf.dom ->
+          @div class: "repo",
+            @p class: "repo-name", (@text repo.name)
+            @p class: "description", (@text repo.description)
+        el.user.q(".repos").appendChild elem
+
+        elem.onclick = ->
+          # log repo.contents_url
+          el.list.q(".repo").innerText = repo.name
+          el.list.q(".path").innerText = ""
+          contents = repo.contents_url.replace("{+path}", "")
+
           get contents, render_list
+          el.list.q(".repo").onclick = ->
+            get contents, render_list
+
+  get_repo user
 
   render_list = (list) ->
     el.list.q(".list").innerHTML = ""
@@ -103,6 +113,13 @@ window.onload = ->
           get_raw file.url, (text) ->
             render_file text, file.path
 
+        repo = file.url.match(/repos\/\w+\/(\w+)\//)[1]
+        state =
+          user: user
+          repo: repo
+          path: file.path
+        history.pushState state, file.path, "##{user}/#{repo}/#{file.path}"
+
   render_file = (text, path) ->
     # log "file:", text
     page.innerHTML = ""
@@ -116,3 +133,25 @@ window.onload = ->
       page.appendChild lilyturf.dom ->
         @pre {},
           @code {},(@text text)
+
+  window.onpopstate = (pop) ->
+    log 'onpopstate', pop.state
+    state = pop.state
+    if state?
+      get_user state.user
+
+      start = root state.user, state.repo
+      get start, render_list
+      get_raw (start + state.path), (text) ->
+        render_file text, state.path
+
+  if location.hash?
+    string = location.hash[1..]
+    match = string.match(/^(\w+)\/(\w+)\/(\S+)$/)[1..]
+    pop =
+      state:
+        user: match[0]
+        repo: match[1]
+        path: match[2]
+    log match, pop
+    onpopstate pop
